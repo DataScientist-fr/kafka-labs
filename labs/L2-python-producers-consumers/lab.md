@@ -62,7 +62,7 @@ flowchart LR
 Créer le topic `orders.avro` (3 partitions, RF=3) :
 
 ```bash
-docker exec -it kafka1 kafka-topics \
+docker exec -it -e KAFKA_OPTS= kafka1 kafka-topics \
   --bootstrap-server kafka1:29092 \
   --create --topic orders.avro \
   --partitions 3 --replication-factor 3
@@ -71,7 +71,7 @@ docker exec -it kafka1 kafka-topics \
 Vérifier :
 
 ```bash
-docker exec -it kafka1 kafka-topics \
+docker exec -it -e KAFKA_OPTS= kafka1 kafka-topics \
   --bootstrap-server kafka1:29092 \
   --describe --topic orders.avro
 ```

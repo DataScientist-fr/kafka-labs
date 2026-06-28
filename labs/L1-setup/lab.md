@@ -94,7 +94,7 @@ kafka-ui          running
 Vérifier le quorum KRaft directement dans le broker `kafka1` :
 
 ```bash
-docker exec kafka1 kafka-metadata-quorum --bootstrap-server localhost:29092 describe --status
+docker exec -e KAFKA_OPTS= kafka1 kafka-metadata-quorum --bootstrap-server localhost:29092 describe --status
 ```
 
 Tu dois voir `LeaderId`, `LeaderEpoch`, et 3 voters actifs (`1, 2, 3`).
@@ -125,7 +125,7 @@ Screenshot recommandé pour votre suivi :
 Créer un topic `events.demo` à 3 partitions, RF=3, `min.insync.replicas=2` :
 
 ```bash
-docker exec kafka1 kafka-topics \
+docker exec -e KAFKA_OPTS= kafka1 kafka-topics \
   --bootstrap-server kafka1:29092 \
   --create \
   --topic events.demo \
@@ -143,7 +143,7 @@ make topics-list
 Décrire le topic (leader, ISR, replicas) :
 
 ```bash
-docker exec kafka1 kafka-topics \
+docker exec -e KAFKA_OPTS= kafka1 kafka-topics \
   --bootstrap-server kafka1:29092 \
   --describe --topic events.demo
 ```
@@ -155,7 +155,7 @@ Vérifier que chaque partition a bien 3 ISR (`Isr: 1,2,3` ou un ordre équivalen
 Dans un premier terminal, démarrer un consumer sur la totalité des partitions :
 
 ```bash
-docker exec -it kafka1 kafka-console-consumer \
+docker exec -it -e KAFKA_OPTS= kafka1 kafka-console-consumer \
   --bootstrap-server kafka1:29092 \
   --topic events.demo \
   --from-beginning \
@@ -166,7 +166,7 @@ docker exec -it kafka1 kafka-console-consumer \
 Dans un second terminal, produire quelques messages clé/valeur :
 
 ```bash
-docker exec -it kafka1 kafka-console-producer \
+docker exec -it -e KAFKA_OPTS= kafka1 kafka-console-producer \
   --bootstrap-server kafka1:29092 \
   --topic events.demo \
   --property parse.key=true \

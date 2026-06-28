@@ -306,7 +306,7 @@ Le watermark est une **borne mobile** sur l'event time. Spark considère qu'aucu
 Démonstration dans `WatermarkDemo.scala` : on injecte volontairement un event en retard de 15 min via un petit producer Python ou via :
 
 ```bash
-docker exec -it kafka1 kafka-console-producer \
+docker exec -it -e KAFKA_OPTS= kafka1 kafka-console-producer \
   --bootstrap-server kafka1:29092 --topic ecommerce.public.orders \
   # produire un message daté de 15 min plus tôt
 ```

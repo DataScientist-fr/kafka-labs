@@ -124,9 +124,9 @@ Inspecter `build.sbt` :
 Créer les topics côté broker :
 
 ```bash
-docker exec -it kafka1 kafka-topics --bootstrap-server kafka1:29092 \
+docker exec -it -e KAFKA_OPTS= kafka1 kafka-topics --bootstrap-server kafka1:29092 \
   --create --topic orders.scala --partitions 3 --replication-factor 3
-docker exec -it kafka1 kafka-topics --bootstrap-server kafka1:29092 \
+docker exec -it -e KAFKA_OPTS= kafka1 kafka-topics --bootstrap-server kafka1:29092 \
   --create --topic orders.scala.avro --partitions 3 --replication-factor 3
 ```
 

@@ -13,9 +13,9 @@ RECORD_SIZE=512
 TRAFFIC_PIDFILE="/tmp/lab-l8-traffic.pid"
 
 ensure_topic() {
-  if ! docker exec kafka1 kafka-topics --bootstrap-server kafka1:29092 --list | grep -q "^${TOPIC}$"; then
+  if ! docker exec -e KAFKA_OPTS= kafka1 kafka-topics --bootstrap-server kafka1:29092 --list | grep -q "^${TOPIC}$"; then
     echo "[break_broker] création de ${TOPIC} (3p, RF=3)..."
-    docker exec kafka1 kafka-topics \
+    docker exec -e KAFKA_OPTS= kafka1 kafka-topics \
       --bootstrap-server kafka1:29092 \
       --create --if-not-exists \
       --topic "$TOPIC" --partitions 3 --replication-factor 3 \
@@ -30,7 +30,7 @@ start_traffic() {
     return
   fi
   echo "[break_broker] démarrage du trafic (${THROUGHPUT} msg/s sur ${TOPIC})..."
-  ( docker exec kafka1 kafka-producer-perf-test \
+  ( docker exec -e KAFKA_OPTS= kafka1 kafka-producer-perf-test \
       --topic "$TOPIC" \
       --num-records 100000000 \
       --record-size "$RECORD_SIZE" \

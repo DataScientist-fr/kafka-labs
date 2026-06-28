@@ -275,7 +275,7 @@ Compléter `replay/snapshot_writer.py` :
 Configurer le topic compacté :
 
 ```bash
-docker exec kafka1 kafka-configs --bootstrap-server kafka1:29092 \
+docker exec -e KAFKA_OPTS= kafka1 kafka-configs --bootstrap-server kafka1:29092 \
   --entity-type topics --entity-name orders.snapshots --alter \
   --add-config cleanup.policy=compact,min.cleanable.dirty.ratio=0.1,segment.ms=60000
 ```

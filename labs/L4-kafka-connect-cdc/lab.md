@@ -122,7 +122,7 @@ curl -s http://localhost:8083/connectors | jq .
 Les **internal topics** Connect (`connect-configs`, `connect-offsets`, `connect-status`) doivent exister :
 
 ```bash
-docker exec kafka1 kafka-topics --bootstrap-server kafka1:29092 --list | grep ^connect-
+docker exec -e KAFKA_OPTS= kafka1 kafka-topics --bootstrap-server kafka1:29092 --list | grep ^connect-
 ```
 
 ## Étape 2 — Configurer le source connector Debezium Postgres
@@ -208,7 +208,7 @@ ecommerce.public.order_items
 Decrire un topic pour confirmer la config (RF=3, partitions=6, ISR>=2) :
 
 ```bash
-docker exec kafka1 kafka-topics --bootstrap-server kafka1:29092 \
+docker exec -e KAFKA_OPTS= kafka1 kafka-topics --bootstrap-server kafka1:29092 \
   --describe --topic ecommerce.public.customers
 ```
 
@@ -378,7 +378,7 @@ Pour démontrer la DLQ, le fichier `connectors/s3-sink-with-dlq.json` configure 
 Créer le topic DLQ d'abord (sinon Connect crée un topic mono-partition par défaut, peu pratique) :
 
 ```bash
-docker exec kafka1 kafka-topics --bootstrap-server kafka1:29092 \
+docker exec -e KAFKA_OPTS= kafka1 kafka-topics --bootstrap-server kafka1:29092 \
   --create --topic dlq.s3-sink-bronze \
   --partitions 3 --replication-factor 3 \
   --config retention.ms=604800000   # 7 jours
@@ -395,7 +395,7 @@ curl -X POST -H "Content-Type: application/json" \
 Lire la DLQ :
 
 ```bash
-docker exec kafka1 kafka-console-consumer \
+docker exec -e KAFKA_OPTS= kafka1 kafka-console-consumer \
   --bootstrap-server kafka1:29092 \
   --topic dlq.s3-sink-bronze \
   --from-beginning \
