@@ -461,7 +461,7 @@ Voir `solutions/L8-ops-security/clients/producer_ssl.py` (challenge) pour la con
 | `SaslAuthenticationException: Authentication failed` | Mot de passe incorrect ou user non créé | Re-jouer `make users` ; vérifier `kafka-configs --describe --entity-type users` |
 | `Topic authorization failed` côté producer authentifié | ACL manquante | `kafka-acls --list` ; ré-jouer `make acls` |
 | `Unknown topic or partition` | Topic `orders` pas créé OU pas d'ACL DESCRIBE | `make acls` recrée le topic, vérifier `kafka-topics --list` (avec creds admin) |
-| Le controller refuse de joindre | SASL inter-broker activé mais pas controller listener | Vérifier `KAFKA_LISTENER_SECURITY_PROTOCOL_MAP` inclut `CONTROLLER:SASL_PLAINTEXT` |
+| Le quorum controller ne se forme pas (`invalid credentials` en boucle) | SASL/SCRAM activé sur le listener CONTROLLER (deadlock bootstrap) | Garder `CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT` ; SASL uniquement sur EXTERNAL. Sinon `make sec-clean` (volume corrompu) |
 | `make break-broker` ne déclenche pas l'alerte | Règles non chargées | `make alerts-install` puis `curl localhost:9090/-/reload` |
 
 À l'issue de ce lab, tu maîtrises le tryptique opérationnel **observer / alerter / sécuriser** d'un cluster Kafka. Étapes suivantes en production : TLS partout, OAuth, Cruise Control pour le rééquilibrage, et un SIEM pour l'audit.
