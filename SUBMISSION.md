@@ -1,0 +1,117 @@
+# Rendu & évaluation des labs
+
+Ce document explique **comment rendre ton travail** et **comment tu es évalué**. À lire avant de commencer les labs.
+
+---
+
+## 1. Comment tu es noté
+
+Ta note combine deux volets :
+
+| Volet | Quoi | Évaluation |
+|---|---|---|
+| **Connaissances** | Les quiz de chaque chapitre (sur la plateforme) | **Automatique** — score enregistré, seuil de réussite 70 %, 3 tentatives |
+| **Pratique** | Les labs L0 → L8 (ce dépôt) | **Tests d'acceptation** + revue de ton fork GitHub |
+
+Pour chaque lab, un **test d'acceptation** vérifie le *résultat* attendu (pas ton code ligne par ligne) : il se connecte au cluster / lit la sortie et contrôle des faits observables. Tu peux le lancer toi-même pour savoir où tu en es **avant** de rendre.
+
+---
+
+## 2. Workflow de rendu (GitHub)
+
+1. **Fork** ce dépôt sur ton compte GitHub (bouton *Fork*).
+2. **Clone** ton fork et crée une branche de travail :
+   ```bash
+   git clone https://github.com/<toi>/formation-kafka-labs.git
+   cd formation-kafka-labs
+   git checkout -b rendu
+   ```
+3. **Complète** les `TODO` de chaque lab en suivant son `lab.md`.
+4. **Auto-vérifie** : démarre la stack, exécute le lab, puis lance le test d'acceptation (cf. §3).
+5. **Commit & push** régulièrement sur ton fork :
+   ```bash
+   git add -A && git commit -m "L<n> : ..."
+   git push origin rendu
+   ```
+6. **Rends l'URL de ton fork** (branche `rendu`) via la plateforme / à ton formateur. C'est ce dépôt que le formateur clone et évalue.
+
+> Garde des **commits lisibles** par lab : ça facilite la relecture et valorise ta démarche.
+
+---
+
+## 3. Lancer les tests d'acceptation
+
+Chaque lab a un test dans `labs/L<n>-.../tests/test_acceptance.py`. Pré-requis : la **stack Docker du lab démarrée** et le **lab exécuté** (les tests vérifient l'état laissé par ton run).
+
+```bash
+# une fois par machine
+pip install pytest confluent-kafka requests fastavro minio
+
+# depuis le dossier d'un lab, après avoir exécuté le lab :
+cd labs/L2-python-producers-consumers
+pytest tests/ -v -m acceptance
+```
+
+- Un test **vert** = l'objectif observable du lab est atteint.
+- Un test **skipped** = la stack ou la sortie attendue est introuvable (relis les prérequis du `lab.md`).
+- Un test **rouge** = le message d'erreur t'indique ce qui manque.
+
+> ⚠️ Rappel : sur la stack centrale, toute commande `docker exec kafka1 kafka-…` doit neutraliser l'agent JMX : `docker exec -e KAFKA_OPTS= kafka1 kafka-topics …`
+
+---
+
+## 4. Definition of Done (par lab)
+
+Ce qui doit être vrai pour considérer un lab **réussi**. (Les tests d'acceptation contrôlent ces points.)
+
+### L0 — Quickstart ingestion
+- [ ] Le pipeline d'ingestion produit `bronze/valid/` et `bronze/rejected/` avec métadonnées (`_ingestion_timestamp`, `_batch_id`, `_source_file`).
+- [ ] Les tests unitaires fournis passent (`pytest`).
+
+### L1 — Setup cluster
+- [ ] Cluster KRaft 3 brokers en bonne santé, quorum formé (`kafka-metadata-quorum … describe --status`).
+- [ ] Topic répliqué créé (`RF=3`, `min.insync.replicas=2`) ; produce → consume fonctionnel.
+
+### L2 — Producers/Consumers Python
+- [ ] Topic `orders.json` alimenté (`producer_simple.py`).
+- [ ] Topic `orders.avro` créé (3 partitions) et alimenté (`producer_avro.py`).
+- [ ] Sujet `orders.avro-value` enregistré au Schema Registry (record `Order`, namespace `fr.formation.kafka.orders`, 5 champs).
+- [ ] Messages Avro au format wire Confluent, désérialisables par un consumer.
+
+### L3 — Producers/Consumers Scala
+- [ ] Le projet **compile** (`sbt compile`).
+- [ ] Topics `orders.scala` et `orders.scala.avro` (3 partitions) alimentés (≥ 20 messages chacun).
+- [ ] Sujet `orders.scala.avro-value` enregistré (même contrat `Order` que L2) ; messages Avro désérialisables.
+
+### L4 — Kafka Connect / CDC
+- [ ] Connecteur source `debezium-postgres-source` `RUNNING` (connecteur **et** tasks).
+- [ ] Topics CDC `ecommerce.public.{customers,orders,order_items}` créés, sujets `-key`/`-value` enregistrés.
+- [ ] Sink `s3-sink-bronze` `RUNNING` (connecteur **et** tasks).
+
+### L5 — PySpark Streaming → Bronze
+- [ ] Table **Bronze Delta** sous `s3://bronze/orders/` (`_delta_log/` + parquet), lisible.
+- [ ] Colonnes métier préservées + métadonnées **CDC** (op, ts source) + **traçabilité Kafka** (topic/partition/offset) + **horodatage d'ingestion** (`ingested_at`/`_ingestion_timestamp`).
+- [ ] Reprise sans perte ni doublon (checkpoint) ; table non vide.
+
+### L6 — Scala Spark Streaming → Silver
+> L6 **consomme le Bronze de L5** et produit la couche **Silver** (agrégations fenêtrées + jointures).
+- [ ] Le projet **compile/assemble** (`sbt assembly`) et le job tourne assez longtemps pour finaliser ≥ 1 fenêtre.
+- [ ] `s3a://silver/orders_revenue_1m/` au format Delta, schéma tumbling (`window_start, window_end, status, orders_count, revenue`), ≥ 1 ligne.
+- [ ] Sliding window `orders_avg_basket_5m`, stream-static join `orders_enriched`, stream-stream join `orders_paid` matérialisés.
+
+### L7 — Event Sourcing & Saga
+- [ ] Les 4 services (order, payment, stock, shipping) complétés et lancés.
+- [ ] Les tests `tests/test_saga_happy_path.py` **et** `tests/test_saga_compensation.py` passent.
+
+### L8 — Ops & Sécurité
+- [ ] Observabilité : les 3 endpoints JMX exposent des métriques, Prometheus scrape les brokers.
+- [ ] Cluster sécurisé up ; users SCRAM + ACLs créés.
+- [ ] Producteur **autorisé** délivre sur `orders` ; client **non autorisé** est **refusé**.
+
+---
+
+## 5. Intégrité
+
+- Le travail est **individuel** sauf consigne contraire.
+- Les corrigés ne sont **pas** dans ce dépôt (volontaire). Cherche, teste, demande de l'aide — mais le code rendu doit être le tien.
+- Les tests d'acceptation valident un *résultat* : reproduire la sortie sans comprendre la démarche ne passe pas la revue.
