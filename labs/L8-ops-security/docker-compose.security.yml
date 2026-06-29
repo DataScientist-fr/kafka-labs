@@ -1,3 +1,5 @@
+version: '3.8'
+
 # Stack Kafka KRaft sécurisée (SASL/SCRAM-SHA-256) — séparée de la stack L1.
 # Réseau isolé : kafka-sec-net. Ports externes : 19092 / 19093 / 19094.
 # Bootstrap user : admin / admin-secret (super-user, créé via kafka-storage --add-scram).
@@ -14,25 +16,18 @@ volumes:
 x-kafka-common-env: &kafka-common-env
   KAFKA_PROCESS_ROLES: broker,controller
   KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-sec-1:29093,2@kafka-sec-2:29093,3@kafka-sec-3:29093
-  # SASL sur TOUS les listeners : inter-broker (SASL_INTERNAL), controller et clients (EXTERNAL).
-  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:SASL_PLAINTEXT,SASL_INTERNAL:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT
-  KAFKA_INTER_BROKER_LISTENER_NAME: SASL_INTERNAL
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT
+  KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
   KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-  # KRaft : si l'inter-broker est en SASL, le controller doit l'être aussi, sinon le quorum ne se forme pas.
-  KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: SCRAM-SHA-256
-  KAFKA_SASL_MECHANISM_CONTROLLER_PROTOCOL: SCRAM-SHA-256
 
-  # SASL — mécanisme SCRAM-SHA-256. Le JAAS de l'inter-broker et du controller est
-  # fourni par le fichier statique broker_jaas.conf (sections KafkaServer / controller.KafkaServer) ;
-  # le listener EXTERNAL a son propre JAAS ci-dessous.
+  # SASL — mécanismes (uniquement pour le listener EXTERNAL)
   KAFKA_SASL_ENABLED_MECHANISMS: SCRAM-SHA-256
   KAFKA_LISTENER_NAME_EXTERNAL_SCRAM_SHA_256_SASL_JAAS_CONFIG: |
     org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="admin-secret";
 
   # Authorization (KRaft : StandardAuthorizer, ACLs dans le metadata log)
   KAFKA_AUTHORIZER_CLASS_NAME: org.apache.kafka.metadata.authorizer.StandardAuthorizer
-  # Plus aucun accès anonyme : tous les listeners sont authentifiés.
-  KAFKA_SUPER_USERS: User:admin
+  KAFKA_SUPER_USERS: User:admin;User:ANONYMOUS
   KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "false"
   KAFKA_EARLY_START_LISTENERS: CONTROLLER
 
@@ -61,8 +56,8 @@ services:
       <<: *kafka-common-env
       KAFKA_OPTS: "-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx-exporter.yml -Djava.security.auth.login.config=/etc/kafka/broker_jaas.conf"
       KAFKA_NODE_ID: 1
-      KAFKA_LISTENERS: SASL_INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,EXTERNAL://0.0.0.0:19092
-      KAFKA_ADVERTISED_LISTENERS: SASL_INTERNAL://kafka-sec-1:29092,EXTERNAL://localhost:19092
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,EXTERNAL://0.0.0.0:19092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-sec-1:29092,EXTERNAL://localhost:19092
     volumes:
       - kafka-sec-1-data:/var/lib/kafka/data
       - ../../docker/jmx:/opt/jmx:ro
@@ -75,8 +70,7 @@ services:
     # Sequence:
     #  1. /etc/confluent/docker/configure  -> generate /etc/kafka/kafka.properties from env vars
     #  2. kafka-storage format             -> initialize KRaft metadata + admin SCRAM user (idempotent)
-    #  3. kafka-storage info                -> sanity check (logs the cluster id)
-    #  4. /etc/confluent/docker/launch     -> start the broker reusing the already-generated config
+    #  3. /etc/confluent/docker/launch     -> start the broker reusing the already-generated config
     command: >
       bash -c '
       /etc/confluent/docker/configure;
@@ -99,8 +93,8 @@ services:
       <<: *kafka-common-env
       KAFKA_OPTS: "-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx-exporter.yml -Djava.security.auth.login.config=/etc/kafka/broker_jaas.conf"
       KAFKA_NODE_ID: 2
-      KAFKA_LISTENERS: SASL_INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,EXTERNAL://0.0.0.0:19093
-      KAFKA_ADVERTISED_LISTENERS: SASL_INTERNAL://kafka-sec-2:29092,EXTERNAL://localhost:19093
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,EXTERNAL://0.0.0.0:19093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-sec-2:29092,EXTERNAL://localhost:19093
     volumes:
       - kafka-sec-2-data:/var/lib/kafka/data
       - ../../docker/jmx:/opt/jmx:ro
@@ -111,8 +105,7 @@ services:
     # Sequence:
     #  1. /etc/confluent/docker/configure  -> generate /etc/kafka/kafka.properties from env vars
     #  2. kafka-storage format             -> initialize KRaft metadata + admin SCRAM user (idempotent)
-    #  3. kafka-storage info                -> sanity check (logs the cluster id)
-    #  4. /etc/confluent/docker/launch     -> start the broker reusing the already-generated config
+    #  3. /etc/confluent/docker/launch     -> start the broker reusing the already-generated config
     command: >
       bash -c '
       /etc/confluent/docker/configure;
@@ -135,8 +128,8 @@ services:
       <<: *kafka-common-env
       KAFKA_OPTS: "-javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=7071:/opt/jmx/kafka-jmx-exporter.yml -Djava.security.auth.login.config=/etc/kafka/broker_jaas.conf"
       KAFKA_NODE_ID: 3
-      KAFKA_LISTENERS: SASL_INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,EXTERNAL://0.0.0.0:19094
-      KAFKA_ADVERTISED_LISTENERS: SASL_INTERNAL://kafka-sec-3:29092,EXTERNAL://localhost:19094
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,EXTERNAL://0.0.0.0:19094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-sec-3:29092,EXTERNAL://localhost:19094
     volumes:
       - kafka-sec-3-data:/var/lib/kafka/data
       - ../../docker/jmx:/opt/jmx:ro
@@ -147,8 +140,7 @@ services:
     # Sequence:
     #  1. /etc/confluent/docker/configure  -> generate /etc/kafka/kafka.properties from env vars
     #  2. kafka-storage format             -> initialize KRaft metadata + admin SCRAM user (idempotent)
-    #  3. kafka-storage info                -> sanity check (logs the cluster id)
-    #  4. /etc/confluent/docker/launch     -> start the broker reusing the already-generated config
+    #  3. /etc/confluent/docker/launch     -> start the broker reusing the already-generated config
     command: >
       bash -c '
       /etc/confluent/docker/configure;

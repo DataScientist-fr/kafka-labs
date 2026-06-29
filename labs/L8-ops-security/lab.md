@@ -269,24 +269,24 @@ Ouvrir `docker-compose.security.yml`. Points clés (à comprendre, déjà config
 
 - **Listeners** :
   ```
-  KAFKA_LISTENERS: SASL_INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,EXTERNAL://0.0.0.0:19092
-  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:SASL_PLAINTEXT,SASL_INTERNAL:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT
-  KAFKA_INTER_BROKER_LISTENER_NAME: SASL_INTERNAL
-  KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: SCRAM-SHA-256
+  KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,EXTERNAL://0.0.0.0:19092
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT
+  KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
   KAFKA_SASL_ENABLED_MECHANISMS: SCRAM-SHA-256
   ```
-- **Controller listener** : il utilise lui aussi SASL (obligatoire avec inter-broker SASL en KRaft, sinon les controllers ne peuvent pas joindre).
-- **JAAS inline** (broker → broker) :
+- **Le SASL/SCRAM est appliqué uniquement sur le listener client `EXTERNAL`** (`:19092-19094`). Le trafic inter-broker et controller reste en `PLAINTEXT` sur le réseau Docker interne (réseau de confiance).
+- **Pourquoi pas SASL/SCRAM sur le controller ?** C'est un piège KRaft : les credentials SCRAM sont stockés **dans le metadata log**, lequel n'existe qu'une fois le quorum de controllers formé… qui aurait justement besoin de ces credentials pour s'authentifier. Œuf-et-poule → le quorum ne se forme jamais (`invalid credentials` en boucle). On sécurise donc le périmètre **exposé** (les clients) et on fait confiance au réseau interne. En production, on durcit l'interne avec **mTLS** (cf. § « limites de SASL_PLAINTEXT »), pas avec SCRAM.
+- **JAAS inline** (listener EXTERNAL) :
   ```
-  KAFKA_LISTENER_NAME_SASL_INTERNAL_SCRAM_SHA_256_SASL_JAAS_CONFIG: |
+  KAFKA_LISTENER_NAME_EXTERNAL_SCRAM_SHA_256_SASL_JAAS_CONFIG: |
     org.apache.kafka.common.security.scram.ScramLoginModule required
     username="admin" password="admin-secret";
   ```
 - **Authorizer** : `KAFKA_AUTHORIZER_CLASS_NAME: org.apache.kafka.metadata.authorizer.StandardAuthorizer` (KRaft, ACLs stockées dans le metadata log).
-- **Super users** : `KAFKA_SUPER_USERS: User:admin` (admin bypasse les ACLs, comme `root`).
-- **Bootstrap user** : créé via `kafka-storage format ... --add-scram 'SCRAM-SHA-256=[name=admin,password=admin-secret]'`. C'est l'œuf et la poule : il faut un user **avant** le 1er démarrage du quorum.
+- **Super users** : `KAFKA_SUPER_USERS: User:admin;User:ANONYMOUS` (admin bypasse les ACLs ; `ANONYMOUS` correspond au trafic interne PLAINTEXT, donc inter-broker/controller autorisés).
+- **Bootstrap user** : `admin` créé via `kafka-storage format ... --add-scram 'SCRAM-SHA-256=[name=admin,password=admin-secret]'` — utilisé pour s'authentifier sur le listener EXTERNAL et administrer les ACLs.
 
-> **KRaft + sécurité** : tous les listeners (broker, inter-broker, controller) doivent partager un mécanisme d'auth cohérent. Si on active SASL inter-broker, il faut aussi l'activer sur le controller, sinon le quorum ne se forme pas.
+> **KRaft + sécurité** : on authentifie le **périmètre client** (listener EXTERNAL, SASL/SCRAM + ACL) et on garde l'inter-broker/controller en PLAINTEXT sur réseau de confiance. Mettre du SCRAM sur le controller casse le bootstrap du quorum (credentials dans un metadata log pas encore formé).
 
 ## Étape 9 — Créer 3 utilisateurs SCRAM
 

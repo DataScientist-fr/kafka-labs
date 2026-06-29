@@ -16,7 +16,6 @@ run_in_broker() {
 echo "[acls] création du topic ${TOPIC} (3p, RF=3)..."
 run_in_broker kafka-topics \
   --bootstrap-server "$BROKER_INTERNAL" \
-  --command-config /etc/kafka/admin.properties \
   --create --if-not-exists \
   --topic "$TOPIC" \
   --partitions 3 --replication-factor 3 \
@@ -25,7 +24,6 @@ run_in_broker kafka-topics \
 echo "[acls] producer-app : WRITE + DESCRIBE sur $TOPIC"
 run_in_broker kafka-acls \
   --bootstrap-server "$BROKER_INTERNAL" \
-  --command-config /etc/kafka/admin.properties \
   --add \
   --allow-principal User:producer-app \
   --operation Write --operation Describe \
@@ -34,7 +32,6 @@ run_in_broker kafka-acls \
 echo "[acls] producer-app : IDEMPOTENT_WRITE cluster"
 run_in_broker kafka-acls \
   --bootstrap-server "$BROKER_INTERNAL" \
-  --command-config /etc/kafka/admin.properties \
   --add \
   --allow-principal User:producer-app \
   --operation IdempotentWrite \
@@ -43,7 +40,6 @@ run_in_broker kafka-acls \
 echo "[acls] consumer-app : READ + DESCRIBE sur $TOPIC"
 run_in_broker kafka-acls \
   --bootstrap-server "$BROKER_INTERNAL" \
-  --command-config /etc/kafka/admin.properties \
   --add \
   --allow-principal User:consumer-app \
   --operation Read --operation Describe \
@@ -52,7 +48,6 @@ run_in_broker kafka-acls \
 echo "[acls] consumer-app : READ sur les groupes prefixed 'analytics-'"
 run_in_broker kafka-acls \
   --bootstrap-server "$BROKER_INTERNAL" \
-  --command-config /etc/kafka/admin.properties \
   --add \
   --allow-principal User:consumer-app \
   --operation Read \
@@ -63,5 +58,4 @@ echo ""
 echo "[acls] ACLs en place :"
 run_in_broker kafka-acls \
   --bootstrap-server "$BROKER_INTERNAL" \
-  --command-config /etc/kafka/admin.properties \
   --list

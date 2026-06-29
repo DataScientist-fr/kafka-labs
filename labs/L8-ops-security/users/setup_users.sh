@@ -14,7 +14,6 @@ run_in_broker() {
 echo "[users] création de producer-app..."
 run_in_broker kafka-configs \
   --bootstrap-server "$BROKER_INTERNAL" \
-  --command-config /etc/kafka/admin.properties \
   --alter \
   --add-config 'SCRAM-SHA-256=[iterations=8192,password=producer-secret]' \
   --entity-type users \
@@ -23,7 +22,6 @@ run_in_broker kafka-configs \
 echo "[users] création de consumer-app..."
 run_in_broker kafka-configs \
   --bootstrap-server "$BROKER_INTERNAL" \
-  --command-config /etc/kafka/admin.properties \
   --alter \
   --add-config 'SCRAM-SHA-256=[iterations=8192,password=consumer-secret]' \
   --entity-type users \
@@ -32,6 +30,5 @@ run_in_broker kafka-configs \
 echo "[users] users existants :"
 run_in_broker kafka-configs \
   --bootstrap-server "$BROKER_INTERNAL" \
-  --command-config /etc/kafka/admin.properties \
   --describe \
   --entity-type users
