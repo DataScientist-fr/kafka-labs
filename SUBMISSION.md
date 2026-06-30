@@ -22,8 +22,8 @@ Pour chaque lab, un **test d'acceptation** vérifie le *résultat* attendu (pas 
 1. **Fork** ce dépôt sur ton compte GitHub (bouton *Fork*).
 2. **Clone** ton fork et crée une branche de travail :
    ```bash
-   git clone https://github.com/<toi>/formation-kafka-labs.git
-   cd formation-kafka-labs
+   git clone https://github.com/<toi>/kafka-labs.git
+   cd kafka-labs
    git checkout -b rendu
    ```
 3. **Complète** les `TODO` de chaque lab en suivant son `lab.md`.
