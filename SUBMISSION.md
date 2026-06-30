@@ -1,41 +1,30 @@
 # Rendu & évaluation des labs
 
-Ce document explique **comment rendre ton travail** et **comment tu es évalué**. À lire avant de commencer les labs.
+Ce document explique **comment récupérer les labs, comment rendre ton travail, et comment tu es évalué**. À lire avant de commencer.
 
 ---
 
 ## 1. Comment tu es noté
 
-Ta note combine deux volets :
-
 | Volet | Quoi | Évaluation |
 |---|---|---|
-| **Connaissances** | Les quiz de chaque chapitre (sur la plateforme) | **Automatique** — score enregistré, seuil de réussite 70 %, 3 tentatives |
-| **Pratique** | Les labs L0 → L8 (ce dépôt) | **Tests d'acceptation** + revue de ton fork GitHub |
+| **Connaissances** | Les quiz de chaque chapitre | **Automatique** — score enregistré, seuil 70 %, 3 tentatives |
+| **Pratique** | Le **Projet** de chaque module (labs L0 → L8) | **Dépôt sur l'activité Projet**, évalué par le formateur (tests d'acceptation + revue) |
 
-Pour chaque lab, un **test d'acceptation** vérifie le *résultat* attendu (pas ton code ligne par ligne) : il se connecte au cluster / lit la sortie et contrôle des faits observables. Tu peux le lancer toi-même pour savoir où tu en es **avant** de rendre.
+Pour chaque lab, un **test d'acceptation** vérifie le *résultat* attendu (pas ton code ligne par ligne). Tu peux le lancer toi-même pour savoir où tu en es **avant** de déposer.
 
 ---
 
-## 2. Workflow de rendu (GitHub)
+## 2. Workflow de rendu (dépôt sur la plateforme)
 
-1. **Fork** ce dépôt sur ton compte GitHub (bouton *Fork*).
-2. **Clone** ton fork et crée une branche de travail :
-   ```bash
-   git clone https://github.com/<toi>/kafka-labs.git
-   cd kafka-labs
-   git checkout -b rendu
-   ```
-3. **Complète** les `TODO` de chaque lab en suivant son `lab.md`.
-4. **Auto-vérifie** : démarre la stack, exécute le lab, puis lance le test d'acceptation (cf. §3).
-5. **Commit & push** régulièrement sur ton fork :
-   ```bash
-   git add -A && git commit -m "L<n> : ..."
-   git push origin rendu
-   ```
-6. **Rends l'URL de ton fork** (branche `rendu`) via la plateforme / à ton formateur. C'est ce dépôt que le formateur clone et évalue.
+1. **Télécharge le ZIP des labs** attaché à l'activité **Projet** du module (section « fichiers associés »). Il contient tous les labs (`labs/L0` … `labs/L8`), la stack Docker (`docker/`) et ce guide.
+2. **Décompresse** et complète les `TODO` du lab concerné, en suivant son `lab.md`.
+3. **Auto-vérifie** : démarre la stack, exécute le lab, puis lance le test d'acceptation (cf. §3).
+4. **Dépose ton rendu** (code + captures ou sortie qui prouvent le résultat) via le bouton **« Soumettre »** de l'activité Projet. C'est ce dépôt que le formateur évalue.
 
-> Garde des **commits lisibles** par lab : ça facilite la relecture et valorise ta démarche.
+> Astuce : dépose une archive claire (un dossier par lab) + un court `NOTES.md` expliquant tes choix et difficultés — ça valorise ta démarche.
+
+> Le code de référence est aussi consultable sur GitHub : **github.com/DataScientist-fr/kafka-labs** (les corrigés des `TODO` n'y sont pas — volontaire).
 
 ---
 
@@ -113,5 +102,5 @@ Ce qui doit être vrai pour considérer un lab **réussi**. (Les tests d'accepta
 ## 5. Intégrité
 
 - Le travail est **individuel** sauf consigne contraire.
-- Les corrigés ne sont **pas** dans ce dépôt (volontaire). Cherche, teste, demande de l'aide — mais le code rendu doit être le tien.
+- Les corrigés ne sont **pas** fournis (volontaire). Cherche, teste, demande de l'aide — mais le code déposé doit être le tien.
 - Les tests d'acceptation valident un *résultat* : reproduire la sortie sans comprendre la démarche ne passe pas la revue.
