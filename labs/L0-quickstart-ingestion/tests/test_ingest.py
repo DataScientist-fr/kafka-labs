@@ -1,6 +1,6 @@
 """Tests pytest pour le pipeline d'ingestion L0.
 
-Preview du chapitre M4 sur les tests pytest. Lance avec :
+Avant-goût des tests pytest (chapitre « Ingestion API & fichiers », lab 5). Lance avec :
     pip install pytest
     pytest tests/ -v
 

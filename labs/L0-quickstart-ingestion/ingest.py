@@ -1,6 +1,6 @@
 """Mini pipeline d'ingestion JSONL → bronze/valid + bronze/rejected.
 
-Pattern fondateur du module B1-M06 (chapitre M1 §1.4).
+Pattern fondateur de la formation « Ingestion de données » (chapitre « Fondamentaux d'une ingestion fiable »).
 Stdlib uniquement (Python 3.10+).
 On code défensivement : aucune exception ne doit faire planter le run.
 En cas de doute, on QUARANTINE — on ne LÈVE pas.

@@ -2,7 +2,7 @@
 **Durée** : 25 min
 **Stack** : Python 3.10+ (stdlib uniquement, aucun pip install)
 
-> **Cours associé** : M1.4 — Mini quick-start lab du chapitre M1 — Quick-start ingestion. C'est le **pattern fondateur** du module : on le retrouvera dans tous les chapitres suivants (M3 API, M4 SQL, M6 Kafka, M9 Spark) avec des transports différents — la géométrie *valid / rejected / log* reste la même.
+> **Cours associé** : formation « Ingestion de données », chapitre « Fondamentaux d'une ingestion fiable ». C'est le **pattern fondateur** du parcours : on le retrouvera dans tous les chapitres suivants (API & fichiers, SQL incrémental, puis Kafka, CDC et Spark dans la formation suivante) avec des transports différents — la géométrie *valid / rejected / log* reste la même.
 > **Pas de paire bilingue** : Python pur, stdlib uniquement, 25 min. À refaire en Scala/Java si parcours JVM.
 
 ## Objectifs
@@ -16,7 +16,7 @@ Construire en 25 minutes un mini-pipeline de fichier qui :
 - log son exécution en JSON structuré (1 ligne par run) avec compteurs et statut ;
 - gère défensivement les cas d'erreur (fichier inexistant, ligne vide, encodage cassé, JSON invalide) **sans planter**.
 
-C'est le **pattern fondateur** du module B1-M06 — **VALID / REJECTED / LOG**.
+C'est le **pattern fondateur** du parcours — **VALID / REJECTED / LOG**.
 
 ## Prérequis
 
@@ -165,13 +165,13 @@ Cinq incidents observés sur ce type de pipeline en production — chacun corrig
 
 ## Pour aller plus loin
 
-Ce lab est le **pattern fondateur** du module B1-M06. Il sera décliné dans :
+Ce lab est le **pattern fondateur** du parcours. Il sera décliné dans :
 
-- **M3** (lab intégré §3.2/3.3/3.5) — même pattern, source = API REST avec pagination + retry
-- **M4** (lab intégré §4.3/4.4/4.5) — même pattern, source = PostgreSQL avec watermark
-- **M5** (labs [L1](../L1-setup/lab.md) + [L2](../L2-python-producers-consumers/lab.md)) — même pattern, transport = Kafka
-- **M6** (lab [L4](../L4-kafka-connect-cdc/lab.md)) — même pattern, validation = Avro + Schema Registry, rejected = topic DLQ Kafka
-- **M9** (lab [L5](../L5-pyspark-streaming/lab.md)) — même pattern, exécuté en distribué par Spark Structured Streaming
+- **Ingestion API & fichiers** (labs intégrés au chapitre) — même pattern, source = API REST avec pagination + retry
+- **Ingestion SQL incrémentale** (labs intégrés au chapitre) — même pattern, source = PostgreSQL avec watermark
+- **Fondamentaux Kafka** (labs [L1](../L1-setup/lab.md) + [L2](../L2-python-producers-consumers/lab.md)) — même pattern, transport = Kafka
+- **Écosystème Kafka / CDC** (lab [L4](../L4-kafka-connect-cdc/lab.md)) — même pattern, validation = Avro + Schema Registry, rejected = topic DLQ Kafka
+- **Spark Structured Streaming** (lab [L5](../L5-pyspark-streaming/lab.md)) — même pattern, exécuté en distribué par Spark Structured Streaming
 
 La géométrie *valid / rejected / log* est non négociable. Seuls le transport et le moteur changent.
 

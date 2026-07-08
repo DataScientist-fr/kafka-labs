@@ -36,4 +36,4 @@ Sortie attendue :
 
 ## Cours associé
 
-CONTENU-M1.4.md — Mini quick-start lab du chapitre M1.
+Formation « Ingestion de données » — chapitre « Fondamentaux d'une ingestion fiable ».
