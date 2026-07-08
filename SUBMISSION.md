@@ -35,7 +35,7 @@ Travailler sous Git est une compétence attendue d'un data engineer — et pour 
 
 ### Option B — rendu par archive (sans compte GitHub)
 
-1. **Télécharge le ZIP des labs** attaché à l'activité **Projet** du module (section « fichiers associés »). Il contient **les labs du module** (ex. `labs/L4` + `labs/L5` pour le projet Spark), la stack Docker (`docker/`) et ce guide.
+1. **Télécharge le ZIP des labs** attaché à la **page d'énoncé du projet** sur la plateforme (section « fichiers associés »). Il contient **les labs du module** (ex. `labs/L4` + `labs/L5` pour le projet Spark), la stack Docker (`docker/`) et ce guide.
 2. **Décompresse** et complète les `TODO` du lab concerné, en suivant son `lab.md`.
 3. **Auto-vérifie** : démarre la stack, exécute le lab, puis lance le test d'acceptation (cf. §3).
 4. **Dépose ton rendu** (code + captures ou sortie qui prouvent le résultat) via le bouton **« Soumettre »** de l'activité Projet.
