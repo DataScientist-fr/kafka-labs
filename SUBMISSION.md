@@ -15,16 +15,34 @@ Pour chaque lab, un **test d'acceptation** vérifie le *résultat* attendu (pas 
 
 ---
 
-## 2. Workflow de rendu (dépôt sur la plateforme)
+## 2. Workflow de rendu
+
+Deux façons de rendre : **via Git (recommandé)** ou par archive déposée sur la plateforme. Dans les deux cas, c'est le **bouton « Soumettre » de l'activité Projet** qui officialise le rendu.
+
+### Option A — rendu via Git (recommandé)
+
+Travailler sous Git est une compétence attendue d'un data engineer — et pour le formateur, un historique de commits vaut mieux qu'une archive.
+
+1. **Forke** ce dépôt (`github.com/DataScientist-fr/kafka-labs`) sur ton compte GitHub. Fork **public ou privé** ; si privé, ajoute le formateur en lecteur (*Settings → Collaborators*).
+2. **Clone ton fork** et crée une branche de travail : `git switch -c rendu`.
+3. Complète les `TODO` du lab concerné en suivant son `lab.md`. **Committe régulièrement** (au minimum un commit par étape de lab, messages clairs : `L2: producer avro + schema registry`).
+4. Ajoute un **`NOTES.md`** à la racine : tes choix, tes difficultés, ce que tu ferais différemment.
+5. **Auto-vérifie** : démarre la stack, exécute le lab, lance le test d'acceptation (cf. §3). Colle la sortie du test dans `NOTES.md` ou dans le dossier du lab.
+6. **Pousse** (`git push origin rendu`), puis **dépose dans l'activité Projet** : l'URL de ton fork, la branche et le SHA du commit final — par exemple :
+   `https://github.com/<ton-compte>/kafka-labs — branche rendu — commit abc1234`
+
+> Le formateur évalue le contenu du dépôt **au SHA indiqué** : diff par rapport au dépôt d'origine, historique des commits, `NOTES.md`, sorties de tests.
+
+### Option B — rendu par archive (sans compte GitHub)
 
 1. **Télécharge le ZIP des labs** attaché à l'activité **Projet** du module (section « fichiers associés »). Il contient tous les labs (`labs/L0` … `labs/L8`), la stack Docker (`docker/`) et ce guide.
 2. **Décompresse** et complète les `TODO` du lab concerné, en suivant son `lab.md`.
 3. **Auto-vérifie** : démarre la stack, exécute le lab, puis lance le test d'acceptation (cf. §3).
-4. **Dépose ton rendu** (code + captures ou sortie qui prouvent le résultat) via le bouton **« Soumettre »** de l'activité Projet. C'est ce dépôt que le formateur évalue.
+4. **Dépose ton rendu** (code + captures ou sortie qui prouvent le résultat) via le bouton **« Soumettre »** de l'activité Projet.
 
 > Astuce : dépose une archive claire (un dossier par lab) + un court `NOTES.md` expliquant tes choix et difficultés — ça valorise ta démarche.
 
-> Le code de référence est aussi consultable sur GitHub : **github.com/DataScientist-fr/kafka-labs** (les corrigés des `TODO` n'y sont pas — volontaire).
+> Le code de référence est consultable sur GitHub : **github.com/DataScientist-fr/kafka-labs** (les corrigés des `TODO` n'y sont pas — volontaire).
 
 ---
 
